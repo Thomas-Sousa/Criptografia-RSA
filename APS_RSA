@@ -1,0 +1,116 @@
+import random
+import tkinter as tk
+from tkinter import messagebox
+
+def mdc(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+def primos(x, y):
+    lista_p = []
+    for nP in range(x, y):
+        eprimo = True
+        for num in range(2, nP):
+            if nP % num == 0:
+                eprimo = False
+        if eprimo:
+            lista_p.append(nP)
+    return lista_p
+
+lista_p = primos(50, 300)
+primoP = random.choice(lista_p)
+primoQ = random.choice(lista_p)
+
+def inversoMulti(a, totiente):
+    d = 0
+    x1 = 0
+    x2 = 1
+    y1 = 1
+    aux = totiente
+    while a > 0:
+        temp1 = aux // a
+        temp2 = aux - temp1 * a
+        aux = a
+        a = temp2
+        x = x2 - temp1 * x1
+        y = d - temp1 * y1
+        x2 = x1
+        x1 = x
+        d = y1
+        y1 = y
+    if aux == 1:
+        return d + totiente
+
+def gerar_chaves():
+    p = primoP
+    q = primoQ
+    n = p * q
+    totiente = (p - 1) * (q - 1)
+
+    e = random.randrange(1, totiente)
+    valmdc = mdc(e, totiente)
+    while valmdc != 1:
+        e = random.randrange(1, totiente)
+        valmdc = mdc(e, totiente)
+
+    d = inversoMulti(e, totiente)
+    return e, d, n
+
+def criptografar(mensagem, e, n):
+    mensagem_criptografada = ""
+    for letra in mensagem:
+        encriptLetra = pow(ord(letra), e, n)
+        mensagem_criptografada += chr(encriptLetra)
+    return mensagem_criptografada
+
+def descriptografar(mensagem_criptografada, d, n):
+    mensagem_descriptografada = ""
+    for letra in mensagem_criptografada:
+        decriptLetra = pow(ord(letra), d, n)
+        mensagem_descriptografada += chr(decriptLetra)
+    return mensagem_descriptografada
+
+def gerar_chaves_interface():
+    global e, d, n
+    e, d, n = gerar_chaves()
+    messagebox.showinfo("Chaves Geradas", f"Chave Pública: ({e}, {n})\nChave Privada: ({d}, {n})")
+
+def criptografar_interface():
+    mensagem = entrada_mensagem.get()
+    if not mensagem:
+        messagebox.showerror("Erro", "Por favor, insira uma mensagem para criptografar.")
+        return
+    mensagem_criptografada = criptografar(mensagem, e, n)
+    saida_criptografada.delete(0, tk.END)
+    saida_criptografada.insert(0, mensagem_criptografada)
+
+def descriptografar_interface():
+    mensagem_criptografada = saida_criptografada.get()
+    if not mensagem_criptografada:
+        messagebox.showerror("Erro", "Por favor, insira uma mensagem criptografada para descriptografar.")
+        return
+    mensagem_descriptografada = descriptografar(mensagem_criptografada, d, n)
+    saida_descriptografada.delete(0, tk.END)
+    saida_descriptografada.insert(0, mensagem_descriptografada)
+
+# Interface Gráfica
+app = tk.Tk()
+app.title("Criptografia RSA")
+app.geometry("500x300")
+
+tk.Label(app, text="Mensagem:").pack()
+entrada_mensagem = tk.Entry(app, width=50)
+entrada_mensagem.pack()
+
+tk.Button(app, text="Gerar Chaves", command=gerar_chaves_interface).pack()
+
+tk.Button(app, text="Criptografar", command=criptografar_interface).pack()
+saida_criptografada = tk.Entry(app, width=50)
+saida_criptografada.pack()
+
+tk.Button(app, text="Descriptografar", command=descriptografar_interface).pack()
+saida_descriptografada = tk.Entry(app, width=50)
+saida_descriptografada.pack()
+
+app.mainloop()
