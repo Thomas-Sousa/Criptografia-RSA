@@ -87,9 +87,26 @@ def criptografar_interface():
 
 def descriptografar_interface():
     mensagem_criptografada = saida_criptografada.get()
+    chave_privada = entrada_chave_privada.get()
+    
     if not mensagem_criptografada:
         messagebox.showerror("Erro", "Por favor, insira uma mensagem criptografada para descriptografar.")
         return
+    
+    if not chave_privada:
+        messagebox.showerror("Erro", "Por favor, insira a chave privada.")
+        return
+
+    try:
+        chave_privada = int(chave_privada)
+    except ValueError:
+        messagebox.showerror("Erro", "Chave privada inválida.")
+        return
+
+    if chave_privada != d:
+        messagebox.showerror("Erro", "Chave privada incorreta.")
+        return
+
     mensagem_descriptografada = descriptografar(mensagem_criptografada, d, n)
     saida_descriptografada.delete(0, tk.END)
     saida_descriptografada.insert(0, mensagem_descriptografada)
@@ -97,20 +114,30 @@ def descriptografar_interface():
 # Interface Gráfica
 app = tk.Tk()
 app.title("Criptografia RSA")
-app.geometry("500x300")
+app.geometry("500x400")
+app.configure(bg="black")  
 
-tk.Label(app, text="Mensagem:").pack()
-entrada_mensagem = tk.Entry(app, width=50)
-entrada_mensagem.pack()
+# Configurações de estilo
+estilo_texto = {"bg": "black", "fg": "lightgreen"}
 
-tk.Button(app, text="Gerar Chaves", command=gerar_chaves_interface).pack()
 
-tk.Button(app, text="Criptografar", command=criptografar_interface).pack()
-saida_criptografada = tk.Entry(app, width=50)
-saida_criptografada.pack()
+tk.Label(app, text="Mensagem:", **estilo_texto).pack(pady=5)
+entrada_mensagem = tk.Entry(app, width=50, **estilo_texto, insertbackground="lightgreen")
+entrada_mensagem.pack(pady=5)
 
-tk.Button(app, text="Descriptografar", command=descriptografar_interface).pack()
-saida_descriptografada = tk.Entry(app, width=50)
-saida_descriptografada.pack()
+tk.Button(app, text="Gerar Chaves", command=gerar_chaves_interface, bg="black", fg="lightgreen").pack(pady=5)
+tk.Button(app, text="Criptografar", command=criptografar_interface, bg="black", fg="lightgreen").pack(pady=5)
+
+saida_criptografada = tk.Entry(app, width=50, **estilo_texto, insertbackground="lightgreen")
+saida_criptografada.pack(pady=5)
+
+tk.Label(app, text="Chave Privada:", **estilo_texto).pack(pady=5)
+entrada_chave_privada = tk.Entry(app, width=50, **estilo_texto, insertbackground="lightgreen")
+entrada_chave_privada.pack(pady=5)
+
+tk.Button(app, text="Descriptografar", command=descriptografar_interface, bg="black", fg="lightgreen").pack(pady=5)
+saida_descriptografada = tk.Entry(app, width=50, **estilo_texto, insertbackground="lightgreen")
+saida_descriptografada.pack(pady=5)
 
 app.mainloop()
+
